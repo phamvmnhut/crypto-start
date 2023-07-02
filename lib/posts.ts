@@ -74,3 +74,9 @@ export function filterPostMetaByTag(posts: Meta[], tag: string, count?: number):
     const tagPosts = posts.filter(post => post.tags.includes(tag));
     return tagPosts.slice(0, count);
 }
+
+export async function getPostBySlug(slug: string) {
+    const res = await fetch(`/api/remote-mdx-data?slug=${slug}`);
+    if (!res.ok) return undefined
+    return res.json();
+}
