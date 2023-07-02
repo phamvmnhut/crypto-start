@@ -4,6 +4,16 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import 'highlight.js/styles/github-dark.css'
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import { Suspense } from "react"
+import {
+    CustomH1, CustomH2, CustomH3, CustomH4, CustomH5, CustomH6, CustomA, CustomImg,
+    Video, CustomImage, CustomLi, CustomUl,
+} from "@/app/components/CustomMdx"
+import rehypeAutolinkHeadings from 'rehype-autolink-headings/lib'
+import rehypeHighlight from 'rehype-highlight/lib'
+import rehypeSlug from 'rehype-slug'
+import remarkGfm from "remark-gfm"
 
 export const revalidate = 86400
 
@@ -59,7 +69,7 @@ export default async function Post({ params: { postId } }: Props) {
     return (
         <div className="container mx-auto my-20 px-20">
             <Image
-            className="object-cover rounded-lg w-full"
+                className="object-cover rounded-lg w-full"
                 src={meta.thumbnail}
                 alt={meta.title}
                 width={1201}
@@ -71,7 +81,46 @@ export default async function Post({ params: { postId } }: Props) {
                     {pubDate}
                 </p>
                 <article>
-                    {content}
+                    <Suspense fallback={<>Loading...</>}>
+                        {/* @ts-expect-error Server Component */}
+                        <MDXRemote
+                            source={content}
+                            components={{
+                                h1: CustomH1,
+                                h2: CustomH2,
+                                h3: CustomH3,
+                                h4: CustomH4,
+                                h5: CustomH5,
+                                h6: CustomH6,
+                                a: CustomA,
+                                img: CustomImg,
+                                li: CustomLi,
+                                ul: CustomUl,
+                                Video,
+                                CustomImage,
+                            }}
+                            options={
+                                {
+                                    mdxOptions: {
+                                        rehypePlugins: [
+                                            rehypeHighlight,
+                                            rehypeSlug,
+                                            [rehypeAutolinkHeadings, {
+                                                behavior: 'wrap'
+                                            }],
+                                            // rehypeKatex,
+                                            // [rehypeCitation, { path: path.join(root, 'data') }],
+                                            // [rehypePrismPlus, { ignoreMissing: true }],
+                                            // rehypePresetMinify,
+                                        ],
+                                        remarkPlugins: [
+                                            remarkGfm
+                                        ]
+                                    }
+                                }
+                            }
+                        />
+                    </Suspense>
                 </article>
                 <section className="mt-10">
                     <h3 className="font-bold text-xl">Bài viết thuộc các chủ đề:</h3>
