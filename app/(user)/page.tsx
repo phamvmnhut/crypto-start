@@ -26,7 +26,7 @@ export default async function Home() {
   return (
     <div className="mx-auto">
       <ThreeColumBlog
-        mainMeta={posts[1]}
+        mainMeta={posts[0]}
         hotMeta={hotMeta}
         latestMeta={Array.from(posts).splice(0,4)} 
       />
