@@ -1,3 +1,6 @@
+"use client";
+
+import { clsV2 } from "@/lib/cls";
 import React from "react";
 
 type VisibilityProp = {
@@ -6,5 +9,7 @@ type VisibilityProp = {
 }
 
 export default function Visibility({ visibility = true, children }: VisibilityProp) {
-  return visibility ? children : null;
+  return <div className={clsV2(
+    visibility ? "block": "hidden"
+  )}>{children}</div>
 }

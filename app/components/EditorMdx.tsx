@@ -3,12 +3,14 @@ import { getPostBySlug } from "@/lib/posts";
 import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from 'next-mdx-remote/serialize';
 import { ChangeEvent, useEffect, useState } from "react";
+import Select, { ActionMeta, OnChangeValue } from 'react-select';
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeHighlight from "rehype-highlight";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { CustomH1, CustomH2, CustomH3, CustomH4, CustomH5, CustomH6, CustomA, CustomImg, CustomLi, CustomUl, Video, CustomImage } from "./CustomMdx";
 import { clsV2 } from "@/lib/cls";
+import Visibility from "./Visibility";
 
 type EditorMdxProp = {
   metaList: Meta[];
@@ -26,6 +28,20 @@ date: '__date__'
 tags: __tag__
 summary: '__summary__'
 ---\n\n`;
+
+type TagType = {
+  value: string;
+  label: string;
+}
+
+const options : TagType[] = [
+  { value: "hot", label: "Hot"},
+  { value: 'crypto', label: 'Crypto' },
+  { value: 'blockchain', label: 'Blockchain' },
+  { value: 'bitcoin', label: 'Bitcoin' },
+  { value: 'altcoin', label: 'Altcoin' },
+  { value: 'airdrop', label: 'Săn Airdrop' }
+]
 
 const ProcessingComp = <svg
   className="mr-3 h-5 w-5 animate-spin text-white"
@@ -50,6 +66,8 @@ const ProcessingComp = <svg
   ;
 
 export default function EditorMdx({ metaList }: EditorMdxProp) {
+  const [showListMeta, setShowListMeta] = useState<boolean>(true);
+
   const [selectedMeta, setSelectedMeta] = useState<number | null>(null);
   const [contentData, setContentData] = useState<string>("Không có nội dung nào đang được chọn");
   const [content, setContent] = useState<MDXRemoteSerializeResult>();
@@ -62,6 +80,15 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
     getPostBySlug(metaList[i].id).then((res) => {
       setContentData(res.data.content)
     })
+
+    const mapOption : TagType[]= [];
+    metaList[i].tags.forEach(e => {
+      let findOption = options.find((ele) => ele.value == e);
+      if (findOption != undefined) {
+        mapOption.push(findOption);
+      }
+    })
+    setTags(mapOption);
   }
 
   useEffect(() => {
@@ -89,20 +116,24 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
   }
 
 
-  async function onSave() {
+  async function onSave(event: React.MouseEvent<HTMLElement>) {
+    event.preventDefault();
+  
     if (processing) return;
-    if (selectedMeta == null) return;
+    if (selectedMeta == null) {
+      setCommitMessage("");
+      return addNotification("Bạn chưa chọn nội dung để chỉnh sửa");
+    }
     try {
-
+      setProcessing(true);
       const metaData = metaList[selectedMeta];
-
       let dateNow = new Date();
-
+      let tagsString = tags.map(e => { return `'${e.value}'`}).join(',');
       const frontmatter = MDX_STRUCTURE
         .replace("__title__", metaData.title)
         .replace("__thumnail__", metaData.thumbnail)
         .replace("__date__", `${dateNow.getMonth() + 1}/${dateNow.getDate()}/${dateNow.getFullYear()}`)
-        .replace("__tag__", "['crypto']")
+        .replace("__tag__", `[${tagsString}]`)
         .replace("__summary__", metaData.summary)
 
       const res = await fetch(`/api/remote-mdx-data?slug=${metaData.id}`, {
@@ -115,12 +146,15 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
 
       const updateRes: ResProp = await res.json();
       if (updateRes?.error) {
-
-      } else {
-
+        addNotification(updateRes?.error)
+      }
+      if (updateRes?.message) {
+        addNotification(updateRes?.message);
       }
     } finally {
       setProcessing(false);
+      addNotification("Cập nhật dữ liệu trang đã xong");
+      setCommitMessage("");
     }
   }
 
@@ -131,48 +165,100 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
         await fetch('/api/revalidate?secret=crypto-start');
       } finally {
         setProcessing(false);
+        addNotification("Làm mới trang chính đã xong");
       }
     }
   }
 
+  const [notification, setNotification] = useState<string | null>(null);
+  function addNotification(noti: string) {
+    if (notification == null) {
+      setNotification(noti);
+    } else {
+      setNotification(notification + " | " + noti)
+    }
+  }
 
+  function closeNotification() {
+    setNotification(null)
+  }
+
+  const [tags, setTags] = useState<readonly TagType[]>([]);
+
+  function onChangeSelectTag(
+    newValue: OnChangeValue<TagType, true>,
+    actionMeta: ActionMeta<TagType>
+  ){
+    setTags(newValue);
+  }
 
   return (
-    <div className="overflow-clip px-5 py-2 flex flex-row justify-start">
-      <div className="min-w-[10rem] pr-5 border-r">
-        <div className="flex flex-row justify-between gap-5 mb-5">
-          {/* <input className="w-full outline-1 outline rounded-md px-5" placeholder="Nội dung commit" 
+    <div className="px-5 pt-2 flex flex-row justify-start">
+      <Visibility visibility={showListMeta}>
+        <div className="min-w-[10rem] pr-5 border-r">
+          <div className="flex flex-row justify-between gap-5 mb-5">
+            {/* <input className="w-full outline-1 outline rounded-md px-5" placeholder="Nội dung commit" 
             value={commitMessage} onChange={(e) => setCommitMessage(e.target.value)} 
             /> */}
-          <button className={
-            clsV2(
-              "font-bold px-5 py-2 rounded-md bg-pink-500 hover:scale-105",
-            )
-          }>
-            Tạo mới
-          </button>
+            <button className={
+              clsV2(
+                "font-bold px-5 py-2 rounded-md bg-pink-500 hover:scale-105",
+              )
+            }>
+              Tạo mới
+            </button>
+            <button className={
+              clsV2(
+                "font-bold px-5 py-2 rounded-md bg-pink-500 hover:scale-105",
+              )
+            }
+              onClick={() => setShowListMeta(false)}
+            >
+              ⟪
+            </button>
+          </div>
+          {
+            metaList.map(function (e, i) {
+              return (
+                <div key={i} className={
+                  clsV2(
+                    "w-full my-2 border-b mx-2 cursor-pointer",
+                    i == selectedMeta ? "font-bold" : "",
+                  )
+                }
+                  onClick={() => onChangeSelectedMeta(i)}
+                >
+                  {e.title}
+                </div>
+              )
+            })
+          }
         </div>
-        {
-          metaList.map(function (e, i) {
-            return (
-              <div key={i} className={
+      </Visibility>
+      <div className="w-full flex">
+        <div className="w-1/2 pt-5 px-5 bg-gray-100 h-max">
+          <Visibility visibility={notification != null}>
+            <div className="mb-5 flex flex-row justify-center items-center gap-5">
+              <span className=" inline-block">{notification}</span>
+              <button className=" border rounded-md hover:scale-105 hover:bg-gray-100 aspect-1 w-8 font-bold"
+              onClick={closeNotification}
+              >X</button>
+            </div>
+          </Visibility>
+          <form className="flex flex-row justify-between gap-5">
+            {
+              !showListMeta &&
+              <button className={
                 clsV2(
-                  "w-full my-2 border-b mx-2 cursor-pointer",
-                  i == selectedMeta ? "font-bold" : "",
+                  "font-bold px-5 py-2 rounded-md bg-pink-500 hover:scale-105",
                 )
               }
-                onClick={() => onChangeSelectedMeta(i)}
+                onClick={() => setShowListMeta(true)}
               >
-                {e.title}
-              </div>
-            )
-          })
-        }
-      </div>
-      <div className="w-full grid grid-cols-2">
-        <div className="pt-5 px-5 bg-gray-100">
-          <div className="flex flex-row justify-between gap-5">
-            <input className="w-full outline-1 outline rounded-md px-5" placeholder="Nội dung commit"
+                ⟫
+              </button>
+            }
+            <input className="w-full outline-1 outline rounded-md px-5" placeholder="Nội dung commit" required
               value={commitMessage} onChange={(e) => setCommitMessage(e.target.value)}
             />
             <button className={
@@ -181,15 +267,24 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
                 processing ? "bg-pink-500/50 hover:cursor-not-allowed" : " bg-pink-500 hover:scale-105"
               )
             }
+              type="submit"
               onClick={onSave}>
               {
                 processing ? ProcessingComp : "Lưu"
               }
             </button>
-          </div>
-          <textarea className="outline-none border-t-2 pt-5 h-full w-full min-h-min mt-10 bg-transparent" value={contentData} onChange={onChangeMdxEdit}></textarea>
+          </form>
+          <Select
+              isMulti
+              name="tags"
+              options={options}
+              onChange={onChangeSelectTag}
+              value={tags}
+              className="basic-multi-select mt-5"
+            />
+          <textarea className="outline-none border-t-2 pt-5 h-[70vh] w-full mt-10 bg-transparent" value={contentData} onChange={onChangeMdxEdit}></textarea>
         </div>
-        <div className="pl-5 border-l">
+        <div className="w-1/2 pl-5 border-l h-[80vh]">
           <div className="flex flex-row justify-end gap-5 mb-5 border-b-2 pb-5">
             <button className={
               clsV2(
@@ -203,25 +298,27 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
               }
             </button>
           </div>
-          {
-            content != undefined && <MDXRemote
-              {...content}
-              components={{
-                h1: CustomH1,
-                h2: CustomH2,
-                h3: CustomH3,
-                h4: CustomH4,
-                h5: CustomH5,
-                h6: CustomH6,
-                a: CustomA,
-                img: CustomImg,
-                li: CustomLi,
-                ul: CustomUl,
-                Video,
-                CustomImage,
-              }}
-            />
-          }
+          <div className="h-full overflow-y-scroll">
+            {
+              content != undefined && <MDXRemote
+                {...content}
+                components={{
+                  h1: CustomH1,
+                  h2: CustomH2,
+                  h3: CustomH3,
+                  h4: CustomH4,
+                  h5: CustomH5,
+                  h6: CustomH6,
+                  a: CustomA,
+                  img: CustomImg,
+                  li: CustomLi,
+                  ul: CustomUl,
+                  Video,
+                  CustomImage,
+                }}
+              />
+            }
+          </div>
         </div>
       </div>
     </div>

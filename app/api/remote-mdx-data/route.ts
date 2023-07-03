@@ -1,5 +1,6 @@
 import { getPostByName } from '@/lib/posts';
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 
 export async function GET(request: NextRequest) {
   const path = request.nextUrl.searchParams.get('slug');
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
   if (!updateRes.ok) {
     return NextResponse.json({ error: "File not found" })
   } else {
+    revalidatePath(`/posts/${path}`);
     return NextResponse.json({ message: "oke" })
   }
 }

@@ -1,13 +1,11 @@
-import './globals.css'
+import '../globals.css'
 import type { Metadata } from 'next'
-import Footer from './components/Footer'
-import Header from './components/Header'
-import AnnounceBar from './components/AnnounceBar'
+import Header from '@/app/components/Header'
 
 
 export const metadata: Metadata = {
   title: {
-    default: "Crypto Start",
+    default: "Crypto Start | Admin",
     template: `%s | Crypto Start`,
   },
   description: 'Nơi bắt đầu cho sự nghiệp crypto của bạn',
@@ -20,13 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="dark:bg-slate-800">
-        <AnnounceBar />
+      <body className="dark:bg-slate-800 max-h-screen">
         <Header />
-        <main >
+        <main className='h-full'>
           {children}
         </main>
-        <Footer />
       </body>
     </html>
   )
