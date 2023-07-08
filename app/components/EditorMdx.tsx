@@ -11,6 +11,12 @@ import remarkGfm from "remark-gfm";
 import { CustomH1, CustomH2, CustomH3, CustomH4, CustomH5, CustomH6, CustomA, CustomImg, CustomLi, CustomUl, Video, CustomImage } from "./CustomMdx";
 import { clsV2 } from "@/lib/cls";
 import Visibility from "./Visibility";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 type EditorMdxProp = {
   metaList: Meta[];
@@ -34,8 +40,8 @@ type TagType = {
   label: string;
 }
 
-const options : TagType[] = [
-  { value: "hot", label: "Hot"},
+const options: TagType[] = [
+  { value: "hot", label: "Hot" },
   { value: 'crypto', label: 'Crypto' },
   { value: 'blockchain', label: 'Blockchain' },
   { value: 'bitcoin', label: 'Bitcoin' },
@@ -75,13 +81,15 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
   const [processing, setProcessing] = useState<boolean>(false);
   const [commitMessage, setCommitMessage] = useState<string>("");
 
+  const [date, setDate] = useState<Date>()
+
   function onChangeSelectedMeta(i: number) {
     setSelectedMeta(i)
     getPostBySlug(metaList[i].id).then((res) => {
       setContentData(res.data.content)
     })
 
-    const mapOption : TagType[]= [];
+    const mapOption: TagType[] = [];
     metaList[i].tags.forEach(e => {
       let findOption = options.find((ele) => ele.value == e);
       if (findOption != undefined) {
@@ -89,6 +97,10 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
       }
     })
     setTags(mapOption);
+
+    if (metaList[i].date != undefined) {
+      setDate(new Date(metaList[i].date))
+    }
   }
 
   useEffect(() => {
@@ -118,7 +130,7 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
 
   async function onSave(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
-  
+
     if (processing) return;
     if (selectedMeta == null) {
       setCommitMessage("");
@@ -127,8 +139,8 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
     try {
       setProcessing(true);
       const metaData = metaList[selectedMeta];
-      let dateNow = new Date();
-      let tagsString = tags.map(e => { return `'${e.value}'`}).join(',');
+      let dateNow = date || new Date();
+      let tagsString = tags.map(e => { return `'${e.value}'` }).join(',');
       const frontmatter = MDX_STRUCTURE
         .replace("__title__", metaData.title)
         .replace("__thumnail__", metaData.thumbnail)
@@ -188,7 +200,7 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
   function onChangeSelectTag(
     newValue: OnChangeValue<TagType, true>,
     actionMeta: ActionMeta<TagType>
-  ){
+  ) {
     setTags(newValue);
   }
 
@@ -241,47 +253,73 @@ export default function EditorMdx({ metaList }: EditorMdxProp) {
             <div className="mb-5 flex flex-row justify-center items-center gap-5">
               <span className=" inline-block">{notification}</span>
               <button className=" border rounded-md hover:scale-105 hover:bg-gray-100 aspect-1 w-8 font-bold"
-              onClick={closeNotification}
+                onClick={closeNotification}
               >X</button>
             </div>
           </Visibility>
-          <form className="flex flex-row justify-between gap-5">
-            {
-              !showListMeta &&
+          <form className="flex flex-row justify-between gap-3">
+            <div className="w-full flex flex-row gap-3">
+              {
+                !showListMeta &&
+                <button className={
+                  clsV2(
+                    "font-bold px-5 py-2 rounded-md bg-pink-500 hover:scale-105",
+                  )
+                }
+                  onClick={() => setShowListMeta(true)}
+                >
+                  ⟫
+                </button>
+              }
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="w-full flex flex-row gap-3 justify-end">
+              <input className="w-full outline-1 outline rounded-md px-5" placeholder="Nội dung commit" required
+                value={commitMessage} onChange={(e) => setCommitMessage(e.target.value)}
+              />
               <button className={
                 clsV2(
-                  "font-bold px-5 py-2 rounded-md bg-pink-500 hover:scale-105",
+                  "font-bold px-5 py-2 rounded-md",
+                  processing ? "bg-pink-500/50 hover:cursor-not-allowed" : " bg-pink-500 hover:scale-105"
                 )
               }
-                onClick={() => setShowListMeta(true)}
-              >
-                ⟫
+                type="submit"
+                onClick={onSave}>
+                {
+                  processing ? ProcessingComp : "Lưu"
+                }
               </button>
-            }
-            <input className="w-full outline-1 outline rounded-md px-5" placeholder="Nội dung commit" required
-              value={commitMessage} onChange={(e) => setCommitMessage(e.target.value)}
-            />
-            <button className={
-              clsV2(
-                "font-bold px-5 py-2 rounded-md",
-                processing ? "bg-pink-500/50 hover:cursor-not-allowed" : " bg-pink-500 hover:scale-105"
-              )
-            }
-              type="submit"
-              onClick={onSave}>
-              {
-                processing ? ProcessingComp : "Lưu"
-              }
-            </button>
+            </div>
           </form>
           <Select
-              isMulti
-              name="tags"
-              options={options}
-              onChange={onChangeSelectTag}
-              value={tags}
-              className="basic-multi-select mt-5"
-            />
+            isMulti
+            name="tags"
+            options={options}
+            onChange={onChangeSelectTag}
+            value={tags}
+            className="basic-multi-select mt-5"
+          />
           <textarea className="outline-none border-t-2 pt-5 h-[70vh] w-full mt-10 bg-transparent" value={contentData} onChange={onChangeMdxEdit}></textarea>
         </div>
         <div className="w-1/2 pl-5 border-l h-[80vh]">
