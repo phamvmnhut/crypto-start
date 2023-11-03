@@ -1,14 +1,14 @@
 import { getPostsMeta } from "@/lib/posts";
-import EditorMdx from "@/app/components/EditorMdx";
+import { EditorMdx } from "../components/editor-mdx";
 
-export const revalidate = 86400
+export const revalidate = 86400;
 
-export default async function AdminScreen() {
+export default async function AdminPage() {
   const posts = await getPostsMeta();
-  
+
   return (
     <div className="w-full h-full">
-      <EditorMdx metaList={posts || []}/>
+      <EditorMdx metaList={posts || []} />
     </div>
-  )
+  );
 }

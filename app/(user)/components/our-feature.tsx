@@ -1,22 +1,23 @@
-import Link from "next/link"
+import { Card } from "@/components/ui/card";
+import Link from "next/link";
 
-export default function OurFeature() {
+export function OurFeature() {
   return (
-    <section className="text-gray-600 body-font">
+    <section className="body-font">
       <div className="container px-5 py-24 mx-auto">
         <div className="flex flex-col text-center w-full mb-20">
-          <h2 className="text-xs text-pink-500 tracking-widest font-medium title-font mb-1">
+          <h2 className="text-xs text-primary tracking-widest font-medium title-font mb-1">
             NỔI BẬT VỚI
           </h2>
-          <h1 className="sm:text-3xl text-2xl font-medium title-font text-gray-900">
+          <h1 className="sm:text-3xl text-2xl font-medium title-font ">
             Chúng tôi mang đến cho bạn
           </h1>
         </div>
-        <div className="flex flex-wrap -m-4">
-          <div className="p-4 md:w-1/3">
-            <div className="flex rounded-lg h-full bg-gray-100 p-8 flex-col">
+        <div className="grid gap-2 grid-cols-3">
+          <Card className="col-span-1">
+            <div className="flex rounded-lg h-full p-8 flex-col">
               <div className="flex items-center mb-3">
-                <div className="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full bg-pink-500 text-white flex-shrink-0">
+                <div className="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full bg-primary text-white flex-shrink-0">
                   <svg
                     fill="none"
                     stroke="currentColor"
@@ -29,17 +30,19 @@ export default function OurFeature() {
                     <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                   </svg>
                 </div>
-                <h2 className="text-gray-900 text-lg title-font font-medium">
+                <h2 className="text-lg title-font font-medium">
                   Hướng dẫn chi tiết nhất
                 </h2>
               </div>
               <div className="flex-grow">
-                <p className="leading-relaxed text-base">
-                  Chúng tôi cung cấp nội dung hướng dẫn đầy đủ, chi tiết và rõ ràng nhất.
+                <p className="leading-relaxed text-base ">
+                  Chúng tôi cung cấp nội dung hướng dẫn đầy đủ, chi tiết và rõ
+                  ràng nhất.
                 </p>
                 <Link
-                href="/about"
-                className="mt-3 text-pink-500 inline-flex items-center">
+                  href="/about"
+                  className="mt-3 text-primary inline-flex items-center"
+                >
                   Xem thêm
                   <svg
                     fill="none"
@@ -55,11 +58,11 @@ export default function OurFeature() {
                 </Link>
               </div>
             </div>
-          </div>
-          <div className="p-4 md:w-1/3">
-            <div className="flex rounded-lg h-full bg-gray-100 p-8 flex-col">
+          </Card>
+          <Card className="col-span-1">
+            <div className="flex rounded-lg h-full p-8 flex-col">
               <div className="flex items-center mb-3">
-                <div className="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full bg-pink-500 text-white flex-shrink-0">
+                <div className="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full bg-primary text-white flex-shrink-0">
                   <svg
                     fill="none"
                     stroke="currentColor"
@@ -73,17 +76,18 @@ export default function OurFeature() {
                     <circle cx={12} cy={7} r={4} />
                   </svg>
                 </div>
-                <h2 className="text-gray-900 text-lg title-font font-medium">
+                <h2 className=" text-lg title-font font-medium">
                   Cập nhật nhanh chóng
                 </h2>
               </div>
               <div className="flex-grow">
-                <p className="leading-relaxed text-base">
+                <p className="leading-relaxed text-base ">
                   Chúng tôi luôn cập nhật nhứng kiến thức mới, dự án mới nhất
                 </p>
                 <Link
-                href="/about" 
-                className="mt-3 text-pink-500 inline-flex items-center">
+                  href="/about"
+                  className="mt-3 text-primary inline-flex items-center"
+                >
                   Xem thêm
                   <svg
                     fill="none"
@@ -99,11 +103,11 @@ export default function OurFeature() {
                 </Link>
               </div>
             </div>
-          </div>
-          <div className="p-4 md:w-1/3">
-            <div className="flex rounded-lg h-full bg-gray-100 p-8 flex-col">
+          </Card>
+          <Card className="col-span-1">
+            <div className="flex rounded-lg h-full p-8 flex-col">
               <div className="flex items-center mb-3">
-                <div className="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full bg-pink-500 text-white flex-shrink-0">
+                <div className="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full bg-primary text-white flex-shrink-0">
                   <svg
                     fill="none"
                     stroke="currentColor"
@@ -118,7 +122,7 @@ export default function OurFeature() {
                     <path d="M20 4L8.12 15.88M14.47 14.48L20 20M8.12 8.12L12 12" />
                   </svg>
                 </div>
-                <h2 className="text-gray-900 text-lg title-font font-medium">
+                <h2 className="text-lg title-font font-medium">
                   Nơi tập hợp đầy đủ cho bạn
                 </h2>
               </div>
@@ -127,8 +131,9 @@ export default function OurFeature() {
                   Tất cả những gì bạn cần để bắt đầu cho crypto
                 </p>
                 <Link
-                href="/about"
-                 className="mt-3 text-pink-500 inline-flex items-center">
+                  href="/about"
+                  className="mt-3 text-primary inline-flex items-center"
+                >
                   Xem thêm
                   <svg
                     fill="none"
@@ -144,9 +149,9 @@ export default function OurFeature() {
                 </Link>
               </div>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </section>
-  )
+  );
 }

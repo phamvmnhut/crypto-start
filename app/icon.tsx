@@ -10,29 +10,34 @@ export default function icon() {
   return new ImageResponse(
     (
       <div
-      style={{
-        fontSize: 24,
-        backgroundColor: "#f9a8d4",
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: "5px",
-      }}>
+        style={{
+          fontSize: 24,
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          borderRadius: "5px",
+        }}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill="none"
+          width="32"
+          height="32"
           viewBox="0 0 24 24"
-          strokeWidth="1.5"
-          stroke="currentColor"
-          className="w-8 h-8"
+          fill="none"
+          stroke="#6D28D9"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6A2.25 2.25 0 016 3.75h1.5m9 0h-9"
-          />
+          <path d="M9 5v4" />
+          <rect width="4" height="6" x="7" y="9" rx="1" />
+          <path d="M9 15v2" />
+          <path d="M17 3v2" />
+          <rect width="4" height="8" x="15" y="5" rx="1" />
+          <path d="M17 13v3" />
+          <path d="M3 3v18h18" />
         </svg>
       </div>
     ),
